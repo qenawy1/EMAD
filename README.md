@@ -18,19 +18,18 @@
 - **Smart Intent Normalization (`normalize_search_intent`):** Handles compound inputs such as `Flutter intern`, `Flutter, intern`, or selecting the `Internship` radio button. It isolates the core discipline (`Flutter`), sets the search intent to `Internship`, and prevents irrelevant cross-domain noise.
 
 ### 2. Granular Seniority & Work Mode Categorization
-- **Seniority Levels:**
-  - `تدريب (Intern)`
-  - `برنامج خريجين (Graduate/Trainee)`
-  - `مبتدئ (Junior/Entry)`
-  - `مبتدئ بخبرة (1-2 Years)`
-  - `متوسط (Mid Level)`
-  - `خبير / قيادي (Senior/Lead)`
-  - `غير محدد (Unspecified)`
-- **Job Types:**
+- **Seniority Level Filter (`مستوى الخبرة`):**
+  - `الكل (أي مستوى)` - Any experience level
+  - `تدريب طلبة وخريجين (Internship)` - Dedicated internships and graduate training programs
+  - `مبتدئ / حديث تخرج (Junior / Entry)` - Strictly filters for entry-level roles, blocking Senior/Lead and 3+ years experience
+  - `متوسط الخبرة (Mid-Level)` - Targets intermediate roles, excluding interns and executives
+  - `سينيور / خبير (Senior / Lead)` - Strictly filters for Senior/Lead/Architect roles, excluding juniors and interns
+  - `إدارة وقيادة (Manager / Director)` - Targets managerial and executive leadership roles
+- **Job Types (`نوع الشغلانة / نظام التعاقد`):**
   - `All (الكل)`
   - `Full-time (دوام كامل)`
-  - `Internship (تدريب طلبة وخريجين)`
   - `Part-time (دوام جزئي)`
+  - `Contract / Freelance (عقد / عمل حر)`
 - **Workplace Environments:**
   - `Remote (عن بُعد - من البيت)`
   - `Hybrid (هجين)`

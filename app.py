@@ -3,18 +3,14 @@ import pandas as pd
 import streamlit as st
 from scraper import LinkedInScraper
 
-# ============================================================
-# إعدادات الصفحة
-# ============================================================
+# Page configuration
 st.set_page_config(
-    page_title="يا فتّاح يا عليم، يا رزّاق يا كريم... أأمر",
+    page_title="يا فتّاح يا عليم يا رزّاق يا كريم... أأمر",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# ============================================================
-# نظام التصميم الكامل — Dark Theme
-# ============================================================
+# UI theme styling (Dark theme)
 st.markdown(
     """
     <style>
@@ -30,19 +26,19 @@ st.markdown(
         color: #e2e8f0 !important;
     }
 
-    /* إخفاء السايدبار */
+    /* Hide sidebar */
     [data-testid="collapsedControl"],
     section[data-testid="stSidebar"] {
         display: none !important;
     }
 
-    /* إخفاء هيدر ستريمليت */
+    /* Hide Streamlit default header */
     header[data-testid="stHeader"] {
         background: transparent !important;
         border-bottom: none !important;
     }
 
-    /* تضييق وتمركز المحتوى */
+    /* Center and constrain main content container */
     .block-container {
         padding-top: 2rem !important;
         padding-bottom: 3rem !important;
@@ -188,45 +184,53 @@ st.markdown(
         background: rgba(26,127,193,0.15) !important;
     }
 
-    /* ─── Radio as chips ────────────────────────────────────── */
-    .stRadio > label {
-        color: #c9d1d9 !important;
-        font-weight: 600 !important;
-        font-size: 0.9rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-    .stRadio > div {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: wrap !important;
-        gap: 0.45rem !important;
+    /* ─── Active Filter Pills ──────────────────────────────── */
+    .active-filters-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 0.9rem;
+        padding-top: 0.75rem;
+        border-top: 1px dashed #21262d;
         direction: rtl !important;
     }
-    .stRadio > div > label {
-        background: #0d1117 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 7px !important;
-        padding: 0.35rem 0.9rem !important;
-        color: #8b949e !important;
-        font-size: 0.85rem !important;
-        font-weight: 600 !important;
-        cursor: pointer !important;
-        transition: border-color 0.15s, color 0.15s, background 0.15s !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 5px !important;
+    .active-filters-title {
+        color: #8b949e;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-left: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
-    .stRadio > div > label:hover {
-        border-color: #388bfd !important;
-        color: #e2e8f0 !important;
+    .filter-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(56, 139, 253, 0.12);
+        border: 1px solid rgba(56, 139, 253, 0.35);
+        color: #79c0ff;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        font-family: 'Cairo', sans-serif !important;
     }
-    /* hide radio bullet */
-    .stRadio > div > label > div:first-child { display: none !important; }
-    /* selected chip */
-    .stRadio > div > label:has(input:checked) {
-        background: rgba(26,127,193,0.14) !important;
-        border-color: #1a7fc1 !important;
-        color: #58a6ff !important;
+    .filter-pill-contract {
+        background: rgba(240, 136, 62, 0.12);
+        border-color: rgba(240, 136, 62, 0.35);
+        color: #ffa657;
+    }
+    .filter-pill-remote {
+        background: rgba(46, 160, 67, 0.12);
+        border-color: rgba(46, 160, 67, 0.35);
+        color: #7ee787;
+    }
+    .filter-pill-seniority {
+        background: rgba(163, 113, 247, 0.12);
+        border-color: rgba(163, 113, 247, 0.35);
+        color: #d2a8ff;
     }
 
     /* ─── Divider ───────────────────────────────────────────── */
@@ -444,6 +448,12 @@ st.markdown(
         color: #d2a8ff;
         font-weight: 600;
     }
+    .job-badge-contract {
+        background: rgba(240, 136, 62, 0.12);
+        border-color: rgba(240, 136, 62, 0.35);
+        color: #ffa657;
+        font-weight: 600;
+    }
     .job-card-action {
         flex-shrink: 0;
     }
@@ -518,12 +528,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ============================================================
-# البيانات الجغرافية ونوع الوظيفة
-# ============================================================
+# Location presets and taxonomy options
 COUNTRIES = {
     "مصر": {
-        "مصر كلها (عام)": "Egypt",
+        "مصر كلها": "Egypt",
         "القاهرة (Cairo)": "Cairo, Egypt",
         "الجيزة (Giza)": "Giza, Egypt",
         "الإسكندرية (Alexandria)": "Alexandria, Egypt",
@@ -570,17 +578,26 @@ COUNTRIES = {
 }
 
 JOB_TYPES = {
-    "هات الكل (مش فارقة معايا)": "all",
+    "الكل (مش فارقة معايا)": "all",
     "دوام كامل (Full-time)": "full_time",
-    "تدريب طلبة وخريجين (Internship)": "internship",
     "دوام جزئي (Part-time)": "part_time",
+    "عقد عمل / عمل حر (Contract)": "contract",
+}
+
+SENIORITY_LEVELS = {
+    "الكل (أي مستوى)": "all",
+    "تدريب طلبة وخريجين (Internship)": "internship",
+    "مبتدئ / حديث تخرج (Junior / Entry)": "entry",
+    "متوسط الخبرة (Mid-Level)": "mid",
+    "سينيور / خبير (Senior / Lead)": "senior",
+    "إدارة وقيادة (Manager / Director)": "director",
 }
 
 WORKPLACE_TYPES = {
     "الكل (المهم نشتغل)": "all",
-    "عن بعد (Remote - من البيت)": "remote",
-    "هجين (Hybrid - يومين كده ويومين كده)": "hybrid",
-    "من الشركة (On-site)": "onsite",
+    "Remote - من البيت": "remote",
+    "Hybrid - يومين كده ويومين كده": "hybrid",
+    "On-site - من الشركة": "onsite",
 }
 
 DATE_POSTED_OPTIONS = {
@@ -589,9 +606,7 @@ DATE_POSTED_OPTIONS = {
     "أي وقت (المتاح كله)": "all",
 }
 
-# ============================================================
 # Page header
-# ============================================================
 st.markdown(
     """
     <div class="emad-header">
@@ -606,11 +621,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ============================================================
-# Search Card 1 — الوظيفة
-# ============================================================
-st.markdown('<div class="search-card">', unsafe_allow_html=True)
-
+# Search Card 1: Role, Seniority, and Job Type
 keywords_input = st.text_input(
     "عايز تشتغل إيه بالظبط؟ (Job Title)",
     value="Data Analyst",
@@ -620,18 +631,27 @@ keywords_input = st.text_input(
 
 st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
 
-col_jt, col_wp = st.columns(2)
+col_jt, col_sen, col_wp = st.columns(3)
 with col_jt:
-    job_type_label = st.radio(
-        "نوع الشغلانة",
+    job_type_label = st.selectbox(
+        "نوع الشغلانة (التعاقد)",
         options=list(JOB_TYPES.keys()),
         index=0,
-        help="لو طالب أو حديث تخرج، اختار Internship عشان عماد يركز ع التدريبات والفرص المفتوحة للبدايات.",
+        help="دوام كامل، دوام جزئي، أو عقود عمل وفريلانس.",
     )
     selected_job_type = JOB_TYPES[job_type_label]
 
+with col_sen:
+    seniority_label = st.selectbox(
+        " مستوى الخبرة (Seniority)",
+        options=list(SENIORITY_LEVELS.keys()),
+        index=0,
+        help="مبتدئ، متوسط، سينيور، أو تدريب.. عماد هيفلترلك المسمى بدقة.",
+    )
+    selected_seniority = SENIORITY_LEVELS[seniority_label]
+
 with col_wp:
-    workplace_label = st.radio(
+    workplace_label = st.selectbox(
         "طريقة الشغل (بيئة العمل)",
         options=list(WORKPLACE_TYPES.keys()),
         index=0,
@@ -639,16 +659,8 @@ with col_wp:
     )
     selected_workplace = WORKPLACE_TYPES[workplace_label]
 
-st.markdown("</div>", unsafe_allow_html=True)
 
-# ============================================================
-# Search Card 2 — الموقع والتوقيت
-# ============================================================
-st.markdown(
-    '<div class="search-card"><div class="search-card-title">ناوي تشتغل/ تدرب فين؟</div>',
-    unsafe_allow_html=True,
-)
-
+# Search Card 2: Location and Posting Date
 col_country, col_city, col_date = st.columns([1, 1.6, 1.2])
 with col_country:
     selected_country = st.selectbox("الدولة", options=list(COUNTRIES.keys()), index=0)
@@ -677,22 +689,19 @@ if target_location_query == "__custom__":
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# ============================================================
-# CTA
-# ============================================================
+# Search Action Button
 st.markdown("<div style='height:0.2rem'></div>", unsafe_allow_html=True)
-search_clicked = st.button("شوفلي الشغل يا عماد", type="primary", width="stretch")
+search_clicked = st.button("شوفلي الشغل يا عماد", type="primary", use_container_width=True)
 st.markdown("<div style='height:1.5rem'></div>", unsafe_allow_html=True)
 
-# ============================================================
-# تنفيذ البحث وعرض النتائج
-# ============================================================
+# Search execution and results state handling
 if "scraped_jobs" not in st.session_state:
     st.session_state["scraped_jobs"] = []
 
 search_fingerprint = (
     keywords_input.strip().lower(),
     selected_job_type,
+    selected_seniority,
     selected_workplace,
     target_location_query.strip().lower(),
     selected_date_posted,
@@ -700,12 +709,12 @@ search_fingerprint = (
 if "last_search_fingerprint" not in st.session_state:
     st.session_state["last_search_fingerprint"] = search_fingerprint
 
-# إذا غير المستخدم المسمى أو نوع الوظيفة أو الموقع ولم يبدأ البحث بعد، نفرغ النتائج السابقة فوراً لمنع الخلط
+# Reset previous results if search parameters change before running a new search
 if st.session_state["last_search_fingerprint"] != search_fingerprint:
     st.session_state["scraped_jobs"] = []
     st.session_state["last_search_fingerprint"] = search_fingerprint
 
-# تنظيف فوري لأي نتائج قديمة مخزنة في الجلسة تحمل الصيغة الملتبسة
+# Sanitize legacy workplace values in active session state
 for _old_job in st.session_state["scraped_jobs"]:
     if "غير محدد" in _old_job.get("بيئة العمل", ""):
         _old_job["بيئة العمل"] = "غير محدد"
@@ -728,8 +737,11 @@ if search_clicked:
         status_box = st.empty()
 
         def update_progress(ratio: float, msg: str):
-            progress_bar.progress(min(max(ratio, 0.0), 1.0))
-            status_box.info(msg)
+            try:
+                progress_bar.progress(min(max(float(ratio), 0.0), 1.0))
+                status_box.info(msg)
+            except Exception:
+                pass
 
         try:
             with st.spinner("عماد شمّر ونازل يفرك في LinkedIn.. ثواني وجايلك بالتفاصيل"):
@@ -737,19 +749,31 @@ if search_clicked:
                     keywords=keywords,
                     location=effective_location,
                     job_type=selected_job_type,
+                    seniority=selected_seniority,
                     workplace_type=selected_workplace,
                     date_posted=selected_date_posted,
-                    pages_per_keyword=3,
+                    pages_per_keyword=2,
                     progress_callback=update_progress,
                 )
             st.session_state["scraped_jobs"] = jobs
-        except Exception:
+        except Exception as e:
+            search_attempted = False
             st.session_state["scraped_jobs"] = []
-            st.error("حصلت مشكلة وأنا بدور. استرها معايا وجرب تاني")
+            st.error(f"حصلت مشكلة وأنا بدور: {e}. استرها معايا وجرب تاني")
+            try:
+                with open("crash.log", "a", encoding="utf-8") as f:
+                    import traceback
+                    f.write(traceback.format_exc() + "\n")
+            except Exception:
+                pass
         finally:
-            progress_bar.empty()
-            status_box.empty()
-# ─── Results ─────────────────────────────────────────────────
+            try:
+                progress_bar.empty()
+                status_box.empty()
+            except Exception:
+                pass
+
+# Render search results
 results = st.session_state["scraped_jobs"]
 
 if results:
@@ -757,20 +781,26 @@ if results:
 
     total_jobs = len(df)
     unique_companies = df["الشركة"].nunique()
-    internships_count = len(df[df["نوع الوظيفة"].str.contains("تدريب", na=False)])
     remote_count = len(df[df["بيئة العمل"].str.contains("عن بُعد", na=False)])
+
+    if selected_job_type == "contract":
+        col3_metric_label = "عقود وعمل حر (Contract)"
+        col3_metric_val = len(df[df["نوع الوظيفة"].str.contains("عقد|Contract|حر|Freelance", na=False)])
+    else:
+        col3_metric_label = "تدريبات (Internships)"
+        col3_metric_val = len(df[df["نوع الوظيفة"].str.contains("تدريب|Intern", na=False)])
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("إجمالي اللي لقاه عماد", total_jobs)
     col2.metric("شركات بتطلب", unique_companies)
-    col3.metric("تدريبات (Internships)", internships_count)
+    col3.metric(col3_metric_label, col3_metric_val)
     col4.metric("شغل من البيت (Remote)", remote_count)
 
     st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
 
     top_bar_col1, top_bar_col2 = st.columns([3, 1])
     with top_bar_col1:
-        st.success(f"عماد مأكدلي وجايبلك الزتونة! لقينا {total_jobs} فرصة شغل/تدريب تناسب طلبك.")
+        st.success(f"لقينا {total_jobs} فرصة شغل/تدريب تناسب طلبك.")
     with top_bar_col2:
         csv_bytes = df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
         st.download_button(
@@ -778,7 +808,7 @@ if results:
             data=csv_bytes,
             file_name="عماد_لقالك_شغل_linkedin.csv",
             mime="text/csv",
-            width="stretch",
+            use_container_width=True,
         )
 
     cards_html = []
@@ -793,7 +823,13 @@ if results:
         seniority = html.escape(str(job.get("مستوى الخبرة", "غير محدد")))
         seniority_html = f'<span class="job-badge job-badge-seniority">{seniority}</span>' if seniority != "غير محدد" else ""
 
-        type_badge_class = "job-badge-intern" if ("تدريب" in job_type or "Intern" in job_type) else "job-badge-default"
+        if "تدريب" in job_type or "Intern" in job_type:
+            type_badge_class = "job-badge-intern"
+        elif "عقد" in job_type or "Contract" in job_type or "حر" in job_type or "Freelance" in job_type:
+            type_badge_class = "job-badge-contract"
+        else:
+            type_badge_class = "job-badge-default"
+
         type_html = f'<span class="job-badge {type_badge_class}">{job_type}</span>' if job_type != "غير محدد" else ""
 
         raw_workplace = str(job.get("بيئة العمل", ""))
