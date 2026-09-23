@@ -1,6 +1,10 @@
 import html
+import importlib
 import pandas as pd
 import streamlit as st
+import scraper
+
+importlib.reload(scraper)
 from scraper import LinkedInScraper
 
 # Page configuration
